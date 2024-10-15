@@ -8,6 +8,11 @@ export default function Formulario() {
     const { traemeCosasDis, modelo, borrarAutoDis } = useContext(Contexto)
     const [modeloAuto, setModeloAuto] = useState('')
     const [ano, setAno] = useState('')
+    const [autos, setAutos] = useState([])
+
+    useEffect(() => {
+        setAutos(modelo)
+    }, [modelo])
 
     const HandleDispatch = (e) => {
         e.preventDefault()
@@ -46,17 +51,21 @@ export default function Formulario() {
             <div>
                 <h2 className="text-xl font-bold mb-2">Autos agregados:</h2>
                 <ul>
-                    {modelo.map((auto) => (
-                        <li key={auto.id} className="flex items-center mb-2">
-                            <span>{auto.modeloAuto} - {auto.ano}</span>
-                            <button 
-                                onClick={() => handleDelete(auto.id)}
-                                className="ml-2 bg-red-500 text-white p-1 rounded"
-                            >
-                                X
-                            </button>
-                        </li>
-                    ))}
+                    {autos && autos.length > 0 ? (
+                        autos.map((auto) => (
+                            <li key={auto.id} className="flex items-center mb-2">
+                                <span>{auto.modeloAuto} - {auto.ano}</span>
+                                <button 
+                                    onClick={() => handleDelete(auto.id)}
+                                    className="ml-2 bg-red-500 text-white p-1 rounded"
+                                >
+                                    X
+                                </button>
+                            </li>
+                        ))
+                    ) : (
+                        <li>No hay autos agregados</li>
+                    )}
                 </ul>
             </div>
         </div>
