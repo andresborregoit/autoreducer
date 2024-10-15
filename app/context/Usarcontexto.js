@@ -3,7 +3,7 @@ import { useReducer, useEffect } from "react";
 import Contexto from "./Contexto";
 import Reducerdepapu from "./Reducer"
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { ref, push, onValue, remove, set } from 'firebase/database';
 
 function Usarcontexto(props) {
     const {children} = props;
@@ -16,24 +16,23 @@ function Usarcontexto(props) {
     const [state, dispatch] = useReducer(Reducerdepapu, initialState);
     
     useEffect(() => {
-        fetchAutos();
-    }, []);
-
-    const fetchAutos = async () => {
-        try {
-            const autosCollection = collection(db, 'autos');
-            const autosSnapshot = await getDocs(autosCollection);
-            const autosList = autosSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+        const autosRef = ref(db, 'autos');
+        const unsubscribe = onValue(autosRef, (snapshot) => {
+            const data = snapshot.val();
+            const autosList = data ? Object.entries(data).map(([id, values]) => ({id, ...values})) : [];
             dispatch({type: "SET_AUTOS", payload: autosList});
-        } catch (error) {
-            console.error("Error fetching autos:", error);
-        }
-    }
+        });
+
+        // Cleanup function
+        return () => unsubscribe();
+    }, []);
 
     const traemeCosasDis = async (parametro) => {
         try {
-            const docRef = await addDoc(collection(db, 'autos'), parametro);
-            dispatch({type: "AGREGADO", payload: {...parametro, id: docRef.id}});
+            const autosRef = ref(db, 'autos');
+            const newAutoRef = push(autosRef);
+            await set(newAutoRef, parametro);
+            // No need to dispatch here as the onValue listener will update the state
         } catch (error) {
             console.error("Error adding auto:", error);
         }
@@ -41,8 +40,9 @@ function Usarcontexto(props) {
 
     const borrarAutoDis = async (id) => {
         try {
-            await deleteDoc(doc(db, 'autos', id));
-            dispatch({type: "BORRADO", payload: id});
+            const autoRef = ref(db, `autos/${id}`);
+            await remove(autoRef);
+            // No need to dispatch here as the onValue listener will update the state
         } catch (error) {
             console.error("Error deleting auto:", error);
         }

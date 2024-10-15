@@ -16,13 +16,15 @@ export default function Formulario() {
 
     const HandleDispatch = (e) => {
         e.preventDefault()
-        const modeloForm = { 
-            modeloAuto,
-            ano: parseInt(ano),
+        if (modeloAuto && ano) {
+            const modeloForm = { 
+                modeloAuto,
+                ano: parseInt(ano),
+            }
+            traemeCosasDis(modeloForm)
+            setModeloAuto('')
+            setAno('')
         }
-        traemeCosasDis(modeloForm)
-        setModeloAuto('')
-        setAno('')
     }
 
     const handleDelete = (id) => {
@@ -38,6 +40,7 @@ export default function Formulario() {
                     onChange={(event) => setModeloAuto(event.target.value)}
                     placeholder="Modelo de auto"
                     className="border p-2"
+                    required
                 />
                 <input 
                     type="number" 
@@ -45,15 +48,16 @@ export default function Formulario() {
                     onChange={(event) => setAno(event.target.value)}
                     placeholder="Año"
                     className="border p-2"
+                    required
                 />
-                <button type="submit" className="bg-blue-500 text-white p-2 rounded">Enviar</button>
+                <button type="submit" className="bg-blue-500 text-white p-2 rounded ">Enviar</button>
             </form>
             <div>
-                <h2 className="text-xl font-bold mb-2">Autos agregados:</h2>
+                <h2 className="text-xl font-bold mb-2 text-white">Autos agregados:</h2>
                 <ul>
                     {autos && autos.length > 0 ? (
                         autos.map((auto) => (
-                            <li key={auto.id} className="flex items-center mb-2">
+                            <li key={auto.id} className="flex items-center mb-2 text-white">
                                 <span>{auto.modeloAuto} - {auto.ano}</span>
                                 <button 
                                     onClick={() => handleDelete(auto.id)}
@@ -64,7 +68,7 @@ export default function Formulario() {
                             </li>
                         ))
                     ) : (
-                        <li>No hay autos agregados</li>
+                        <li className="text-white">No hay autos agregados</li>
                     )}
                 </ul>
             </div>
